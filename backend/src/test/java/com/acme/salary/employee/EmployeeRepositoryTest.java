@@ -1,9 +1,6 @@
 package com.acme.salary.employee;
 
 import com.acme.salary.TestcontainersConfiguration;
-import com.acme.salary.currency.ExchangeRate;
-import com.acme.salary.currency.ExchangeRateRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Runs against a real Postgres (Testcontainers) so the Flyway schema,
  * entity mappings and database constraints are verified together.
+ * Exchange rates come from the V2 migration, exactly as in production.
  * Each test runs in a transaction that is rolled back, keeping tests independent.
  */
 @SpringBootTest
@@ -30,17 +28,9 @@ class EmployeeRepositoryTest {
     @Autowired
     private EmployeeRepository employees;
 
-    @Autowired
-    private ExchangeRateRepository rates;
-
-    @BeforeEach
-    void seedCurrency() {
-        rates.save(new ExchangeRate("INR", new BigDecimal("0.012"), LocalDate.of(2026, 1, 1)));
-    }
-
     @Test
     void savesAndLoadsEmployee() {
-        Employee saved = employees.saveAndFlush(employee("EMP-00001", "asha@acme.com", "INR"));
+        Employee saved = employees.saveAndFlush(employee("EMP-90001", "asha@acme.com", "INR"));
 
         Employee loaded = employees.findById(saved.getId()).orElseThrow();
 
@@ -52,15 +42,15 @@ class EmployeeRepositoryTest {
 
     @Test
     void rejectsDuplicateEmail() {
-        employees.saveAndFlush(employee("EMP-00001", "asha@acme.com", "INR"));
+        employees.saveAndFlush(employee("EMP-90001", "asha@acme.com", "INR"));
 
-        assertThatThrownBy(() -> employees.saveAndFlush(employee("EMP-00002", "asha@acme.com", "INR")))
+        assertThatThrownBy(() -> employees.saveAndFlush(employee("EMP-90002", "asha@acme.com", "INR")))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     void rejectsCurrencyWithoutExchangeRate() {
-        assertThatThrownBy(() -> employees.saveAndFlush(employee("EMP-00001", "asha@acme.com", "ZZZ")))
+        assertThatThrownBy(() -> employees.saveAndFlush(employee("EMP-90001", "asha@acme.com", "ZZZ")))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
