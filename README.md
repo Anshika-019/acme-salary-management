@@ -2,7 +2,8 @@
 
 A web application that replaces ACME's spreadsheet-based salary records for ~10,000 employees across 8 countries. An HR manager can maintain employee salary data and answer questions about how the organisation pays people: typical pay by country, department or role, the spread of pay within a group, and who is paid far from their peers.
 
-- **Live app:** _add link after deployment_
+- **Live app:** https://acme-salary-management-b1pg.onrender.com
+  (hosted on a free tier: if the app has been idle, the first load can take up to 2 minutes while it starts)
 - **Demo video:** _add link_
 - **Requirements:** [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)
 
