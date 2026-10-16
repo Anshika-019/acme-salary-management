@@ -1,39 +1,134 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+
+// Design tokens. Ink for structure, ledger green for actions,
+// amber / steel blue to tell "paid above peers" from "paid below peers".
+:root {
+  --ink: #1f2a44;
+  --ink-muted: #5b6478;
+  --canvas: #f4f6f5;
+  --paper: #ffffff;
+  --rule: #d8ddd9;
+  --ledger: #2f6f4f;
+  --ledger-soft: #dcebe2;
+  --above: #9a6700;
+  --below: #3e6a9e;
+  --font: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+}
 
 html {
   height: 100%;
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: mat.$green-palette,
+        tertiary: mat.$orange-palette,
       ),
-      typography: Roboto,
-      density: 0,
+      typography: var(--font),
+      density: -1,
     )
   );
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
 }
-/* You can add global styles to this file, and also import other style files */
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+h1 {
+  font-size: 1.6rem;
+}
+h2 {
+  font-size: 1.1rem;
+}
+
+// Salary figures line up like a spreadsheet column.
+.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  p {
+    margin: 4px 0 0;
+    color: var(--ink-muted);
+  }
+}
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+
+  mat-form-field {
+    width: 190px;
+  }
+  .search {
+    width: 280px;
+  }
+}
+
+.error-banner {
+  margin: 12px 0;
+  padding: 10px 14px;
+  border-left: 3px solid #b3261e;
+  background: #fbeceb;
+  color: #5c1410;
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--ink-muted);
+
+  p {
+    margin: 0 0 12px;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ledger);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

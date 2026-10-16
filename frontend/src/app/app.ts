@@ -1,12 +1,16 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.scss',
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('frontend');
+  constructor() {
+    // index.html loads the Material Symbols font; make <mat-icon> use it.
+    inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
+  }
 }
