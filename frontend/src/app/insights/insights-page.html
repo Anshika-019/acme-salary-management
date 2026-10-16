@@ -1,0 +1,170 @@
+<div class="page-header">
+  <div>
+    <h1>Pay insights</h1>
+    <p>Annual base salary. Figures in USD for comparison across countries.</p>
+  </div>
+  <div class="filters">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Country</mat-label>
+      <mat-select [value]="filter().country ?? ''" (valueChange)="setFilter({ country: $event })">
+        <mat-option value="">All countries</mat-option>
+        @for (country of options().countries; track country) {
+          <mat-option [value]="country">{{ country }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Department</mat-label>
+      <mat-select [value]="filter().department ?? ''" (valueChange)="setFilter({ department: $event })">
+        <mat-option value="">All departments</mat-option>
+        @for (department of options().departments; track department) {
+          <mat-option [value]="department">{{ department }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+
+@if (error(); as message) {
+  <div class="error-banner" role="alert">{{ message }}</div>
+}
+
+@if (summary(); as s) {
+  <section class="summary" aria-label="Summary">
+    <div class="figure lead">
+      <span class="value">{{ s.medianUsd | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+      <span class="label">Median salary</span>
+    </div>
+    <div class="figure">
+      <span class="value">{{ s.headcount | number }}</span>
+      <span class="label">Employees across {{ s.countries }} {{ s.countries === 1 ? 'country' : 'countries' }}</span>
+    </div>
+    <div class="figure">
+      <span class="value">{{ formatCompactUsd(s.totalPayrollUsd) }}</span>
+      <span class="label">Annual payroll</span>
+    </div>
+    <div class="figure">
+      <span class="value">{{ s.averageUsd | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+      <span class="label">Average salary, pulled up by the highest earners</span>
+    </div>
+  </section>
+}
+
+<section class="panel block">
+  <div class="block-header">
+    <h2>Pay by {{ groupLabel().toLowerCase() }}</h2>
+    <mat-button-toggle-group
+      [value]="groupBy()"
+      (change)="groupBy.set($event.value)"
+      aria-label="Group salaries by"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle value="country">Country</mat-button-toggle>
+      <mat-button-toggle value="department">Department</mat-button-toggle>
+      <mat-button-toggle value="jobTitle">Job title</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="legend muted">
+    <span class="key whisker"></span> lowest to highest
+    <span class="key box"></span> middle half of employees
+    <span class="key median"></span> median
+  </div>
+
+  <div class="table-scroll">
+    <table class="stats">
+      <thead>
+        <tr>
+          <th scope="col">{{ groupLabel() }}</th>
+          <th scope="col" class="num">People</th>
+          <th scope="col" class="num">Median (USD)</th>
+          <th scope="col" class="num">Median (local)</th>
+          <th scope="col" class="range-col">Pay range (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of stats(); track row.group) {
+          <tr>
+            <th scope="row">{{ row.group }}</th>
+            <td class="num">{{ row.headcount | number }}</td>
+            <td class="num strong">{{ row.medianUsd | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+            <td class="num muted">
+              @if (row.localCurrency) {
+                {{ row.medianLocal | currency: row.localCurrency : 'symbol-narrow' : '1.0-0' }}
+              } @else {
+                <span title="Employees in this group are paid in different currencies">Mixed</span>
+              }
+            </td>
+            <td class="range-col"><app-pay-range-bar [distribution]="row" [scaleMax]="scaleMax()" /></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5" class="empty-state">No employees match these filters.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel block">
+  <div class="block-header">
+    <div>
+      <h2>Paid far from their peers</h2>
+      <p class="muted intro">
+        Compared with the median for the same job title in the same country, in local currency.
+        Peer groups under {{ outliers()?.minPeerGroupSize ?? 5 }} people are skipped.
+      </p>
+    </div>
+    <mat-form-field subscriptSizing="dynamic" class="threshold">
+      <mat-label>Difference from peers</mat-label>
+      <mat-select [value]="threshold()" (valueChange)="threshold.set($event)">
+        <mat-option [value]="0.2">20% or more</mat-option>
+        <mat-option [value]="0.3">30% or more</mat-option>
+        <mat-option [value]="0.5">50% or more</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (outliers(); as report) {
+    @if (report.totalCount > report.outliers.length) {
+      <p class="muted count">Showing the {{ report.outliers.length }} largest of {{ report.totalCount }}.</p>
+    }
+    <div class="table-scroll">
+      <table class="stats">
+        <thead>
+          <tr>
+            <th scope="col">Employee</th>
+            <th scope="col">Job title</th>
+            <th scope="col">Country</th>
+            <th scope="col" class="num">Salary</th>
+            <th scope="col" class="num">Peer median</th>
+            <th scope="col" class="num">Difference</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of report.outliers; track o.id) {
+            <tr>
+              <th scope="row">
+                {{ o.fullName }}
+                <div class="muted small">{{ o.employeeCode }}</div>
+              </th>
+              <td>{{ o.jobTitle }}</td>
+              <td>{{ o.countryCode }}</td>
+              <td class="num">{{ o.annualSalary | currency: o.currencyCode : 'symbol-narrow' : '1.0-0' }}</td>
+              <td class="num muted">{{ o.peerMedian | currency: o.currencyCode : 'symbol-narrow' : '1.0-0' }}</td>
+              <td class="num" [class.above]="o.deviationPercent > 0" [class.below]="o.deviationPercent < 0">
+                {{ formatDeviation(o.deviationPercent) }}
+                <span class="small">{{ o.deviationPercent > 0 ? 'above' : 'below' }}</span>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="empty-state">Everyone is paid within this range of their peers.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (ratesAsOf(); as asOf) {
+  <p class="muted footnote">USD figures use fixed exchange rates as of {{ asOf }}.</p>
+}

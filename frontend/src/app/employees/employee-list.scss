@@ -1,0 +1,31 @@
+.filters {
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+}
+
+.code {
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.email {
+  font-size: 12px;
+}
+
+.actions {
+  white-space: nowrap;
+  text-align: right;
+  width: 96px;
+}
+
+mat-progress-bar.idle {
+  visibility: hidden;
+}

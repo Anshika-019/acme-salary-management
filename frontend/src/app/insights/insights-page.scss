@@ -1,0 +1,111 @@
+.summary {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
+  border-top: 2px solid var(--ink);
+  margin-bottom: 28px;
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 20px 14px 0;
+
+  .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .label {
+    color: var(--ink-muted);
+    max-width: 24ch;
+  }
+  &.lead .value {
+    font-size: 2.4rem;
+    color: var(--ledger);
+    line-height: 1.1;
+  }
+}
+
+.block {
+  margin-bottom: 24px;
+  padding: 18px 20px 8px;
+}
+
+.block-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.intro {
+  margin: 4px 0 0;
+  max-width: 70ch;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 6px 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin-bottom: 8px;
+
+  .key {
+    display: inline-block;
+    margin-right: -8px;
+  }
+  .whisker { width: 18px; height: 2px; background: var(--rule); }
+  .box { width: 14px; height: 10px; background: var(--ledger-soft); border: 1px solid var(--ledger); }
+  .median { width: 3px; height: 14px; background: var(--ledger); }
+}
+
+table.stats {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: middle;
+  }
+  thead th {
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-size: 12px;
+  }
+  tbody th {
+    font-weight: 500;
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .num {
+    text-align: right;
+  }
+  .strong {
+    font-weight: 600;
+  }
+  .range-col {
+    width: 40%;
+    padding-left: 16px;
+  }
+}
+
+.above { color: var(--above); font-weight: 600; }
+.below { color: var(--below); font-weight: 600; }
+.small { font-size: 12px; font-weight: 400; }
+.count { margin: 0 0 4px; }
+.threshold { width: 200px; }
+.footnote { font-size: 12px; }
+
+@media (max-width: 800px) {
+  .summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}

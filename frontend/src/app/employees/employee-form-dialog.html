@@ -1,0 +1,96 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit ' + data.employee!.fullName : 'Add employee' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content>
+    @if (formError(); as message) {
+      <div class="error-banner" role="alert">{{ message }}</div>
+    }
+
+    <div class="grid">
+      <mat-form-field>
+        <mat-label>Employee ID</mat-label>
+        <input matInput formControlName="employeeCode" placeholder="EMP-00001" />
+        <mat-error>{{ errorFor('employeeCode') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="fullName" />
+        <mat-error>{{ errorFor('fullName') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="wide">
+        <mat-label>Work email</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error>{{ errorFor('email') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Free text with suggestions: allows new values but nudges towards existing spellings -->
+      <mat-form-field>
+        <mat-label>Job title</mat-label>
+        <input matInput formControlName="jobTitle" list="job-titles" />
+        <datalist id="job-titles">
+          @for (title of data.options.jobTitles; track title) {
+            <option [value]="title"></option>
+          }
+        </datalist>
+        <mat-error>{{ errorFor('jobTitle') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Department</mat-label>
+        <input matInput formControlName="department" list="departments" />
+        <datalist id="departments">
+          @for (department of data.options.departments; track department) {
+            <option [value]="department"></option>
+          }
+        </datalist>
+        <mat-error>{{ errorFor('department') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Country</mat-label>
+        <input matInput formControlName="countryCode" list="countries" maxlength="2" />
+        <datalist id="countries">
+          @for (country of data.options.countries; track country) {
+            <option [value]="country"></option>
+          }
+        </datalist>
+        <mat-error>{{ errorFor('countryCode') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Pay currency</mat-label>
+        <mat-select formControlName="currencyCode">
+          @for (currency of data.currencies; track currency) {
+            <mat-option [value]="currency">{{ currency }}</mat-option>
+          }
+        </mat-select>
+        @if (data.currencies.length === 0) {
+          <mat-hint>Couldn't load currencies. Reload the page to try again.</mat-hint>
+        }
+        <mat-error>{{ errorFor('currencyCode') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Annual base salary</mat-label>
+        <input matInput type="number" min="0" step="100" formControlName="annualSalary" />
+        <span matTextSuffix>&nbsp;{{ form.controls.currencyCode.value }}</span>
+        <mat-error>{{ errorFor('annualSalary') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Hire date</mat-label>
+        <input matInput type="date" formControlName="hireDate" [max]="today" />
+        <mat-error>{{ errorFor('hireDate') }}</mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button matButton type="button" mat-dialog-close [disabled]="saving()">Cancel</button>
+    <button matButton="filled" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving…' : isEdit ? 'Save changes' : 'Add employee' }}
+    </button>
+  </mat-dialog-actions>
+</form>
