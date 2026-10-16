@@ -72,6 +72,14 @@ public class Employee {
     public Employee(String employeeCode, String fullName, String email, String jobTitle,
                     String department, String countryCode, String currencyCode,
                     BigDecimal annualSalary, LocalDate hireDate) {
+        update(employeeCode, fullName, email, jobTitle, department, countryCode, currencyCode,
+                annualSalary, hireDate);
+    }
+
+    /** The single place where an employee's editable fields change. */
+    public void update(String employeeCode, String fullName, String email, String jobTitle,
+                       String department, String countryCode, String currencyCode,
+                       BigDecimal annualSalary, LocalDate hireDate) {
         this.employeeCode = employeeCode;
         this.fullName = fullName;
         this.email = email;
