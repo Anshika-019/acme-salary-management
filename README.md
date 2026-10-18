@@ -1,5 +1,7 @@
 # ACME Pay: salary management for HR
 
+![CI](https://github.com/Anshika-019/acme-salary-management/actions/workflows/ci.yml/badge.svg)
+
 A web application that replaces ACME's spreadsheet-based salary records for ~10,000 employees across 8 countries. An HR manager can maintain employee salary data and answer questions about how the organisation pays people: typical pay by country, department or role, the spread of pay within a group, and who is paid far from their peers.
 
 - **Live app:** https://acme-salary-management-b1pg.onrender.com
@@ -8,6 +10,9 @@ A web application that replaces ACME's spreadsheet-based salary records for ~10,
 - **Requirements:** [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)
 
 ## What it does
+
+![Employee directory](docs/screenshots/employees.png)
+![Pay insights](docs/screenshots/insights.png)
 
 **Employee directory.** Search 10,000 employees by name, email or ID, filter by country, department and job title, sort and page through results. Add, edit and delete employees with validation on both client and server. Every salary is shown in its local currency and in USD.
 
@@ -21,6 +26,7 @@ A web application that replaces ACME's spreadsheet-based salary records for ~10,
 | Database | PostgreSQL 16 |
 | Frontend | Angular 22 (standalone components, signals), Angular Material |
 | Tests | JUnit 5, Mockito, Testcontainers (backend) · Vitest (frontend) |
+| Delivery | Docker (single image), Render, GitHub Actions CI |
 
 Why these choices: [docs/DECISIONS.md](docs/DECISIONS.md).
 
@@ -46,11 +52,35 @@ npm start
 
 On Windows Command Prompt use `mvnw` instead of `./mvnw`.
 
+## Deployment
+
+The app ships as a single Docker image: the [Dockerfile](Dockerfile) builds the Angular app, bundles it into the Spring Boot jar as static files, and runs it on a slim JRE as a non-root user. One service, one URL, no CORS in production.
+
+It runs on Render (Docker web service + managed PostgreSQL), configured only through environment variables:
+
+| Variable | Purpose |
+|---|---|
+| `DB_URL` | JDBC URL, e.g. `jdbc:postgresql://host:5432/db` |
+| `DB_USERNAME`, `DB_PASSWORD` | Database credentials (never committed) |
+| `APP_SEED_ENABLED` | `true` loads 10,000 demo employees on first start; skipped when data exists |
+| `PORT` | Set by the platform |
+
+To try the image locally against the Compose database:
+
+```bash
+docker build -t acme-pay .
+docker run --rm -p 9090:8080 -e PORT=8080 --network acme-salary-management_default \
+  -e DB_URL=jdbc:postgresql://postgres:5432/salary acme-pay
+#    App: http://localhost:9090
+```
+
+GitHub Actions runs the backend and frontend test suites and a production build on every push.
+
 ## Running tests
 
 ```bash
 cd backend && ./mvnw test           # needs Docker running (Testcontainers starts a throwaway Postgres)
-cd frontend && npx ng test --watch=false
+cd ../frontend && npx ng test --watch=false
 ```
 
 The backend suite has three levels: pure unit tests (business rules, seed generator, currency maths), web-layer tests (HTTP status codes, validation, error format) and integration tests against real Postgres (schema, constraints, search SQL, analytics SQL). Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#testing-strategy).
@@ -75,9 +105,12 @@ Errors use RFC 9457 problem details: `{ "status": 400, "detail": "...", "errors"
 ## Repository layout
 
 ```
-backend/    Spring Boot API, organised by feature: employee/, insights/, currency/, seed/, common/
-frontend/   Angular app: core/ (API services, models), employees/, insights/, shared/
-docs/       Requirements, architecture, decisions, AI usage notes
+backend/              Spring Boot API, organised by feature: employee/, insights/, currency/, seed/, common/
+frontend/             Angular app: core/ (API services, models), employees/, insights/, shared/
+docs/                 Requirements, architecture, decisions, AI usage notes
+Dockerfile            Builds the UI and API into one image
+docker-compose.yml    Local Postgres
+.github/workflows/    CI: tests and build on every push
 ```
 
 ## Documentation
