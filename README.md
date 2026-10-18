@@ -6,7 +6,7 @@ A web application that replaces ACME's spreadsheet-based salary records for ~10,
 
 - **Live app:** https://acme-salary-management-b1pg.onrender.com
   (hosted on a free tier: if the app has been idle, the first load can take up to 2 minutes while it starts)
-- **Demo video:** _add link_
+- **Demo video:** https://youtu.be/8FS_HwLGAbk
 - **Requirements:** [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)
 
 ## What it does
